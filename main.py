@@ -131,7 +131,7 @@ async def start_handler(msg: types.Message):
                 "- Как пришла идея открыть свою студию\n"
                 "- Первая студия открытая по франшизе в Мурманске\n"
                 "- Особенности сервиса и уюта студий «Рельсы-рельсы, шпалы-шпалы»\n\n"
-                "Смотреть интервью: \nhttps://disk.yandex.ru/i/AsoaQ8nfTuNOhg"
+                "Смотреть интервью: \nhttps://rutube.ru/video/70a68bad9e59559b581d77722ed6f036/"
             )
             await msg.answer(welcome_text)
             # await msg.answer("https://disk.yandex.ru/i/AsoaQ8nfTuNOhg")
@@ -166,6 +166,11 @@ async def message_text_step(msg: types.Message, state: FSMContext):
 async def message_delay_step(msg: types.Message, state: FSMContext):
     try:
         delay = float(msg.text)
+        if delay < 0.016:  # Минимальное значение (примерно 1 минута)
+            await msg.answer(
+                "Минимальное значение задержки — 0.016 (примерно 1 минута)"
+            )
+            return
         await state.update_data(delay_hours=delay)
         await msg.answer("Введите ссылку для инлайн-кнопки:")
         await state.set_state(AdminStates.add_message_link)
@@ -197,12 +202,23 @@ async def list_messages(msg: types.Message):
         messages = (await session.execute(select(Message))).scalars().all()
         if messages:
             for message in messages:
-                keyboard = InlineKeyboardMarkup(inline_keyboard=[
-                    [InlineKeyboardButton(text="Удалить", callback_data=f"delete_message_{message.id}")]
-                ])
-                await msg.answer(f"📩 {message.title}\n📝 {message.text}\n🔗 {message.link}", reply_markup=keyboard)
+                keyboard = InlineKeyboardMarkup(
+                    inline_keyboard=[
+                        [
+                            InlineKeyboardButton(
+                                text="Удалить",
+                                callback_data=f"delete_message_{message.id}",
+                            )
+                        ]
+                    ]
+                )
+                await msg.answer(
+                    f"📩 {message.title}\n📝 {message.text}\n🔗 {message.link}",
+                    reply_markup=keyboard,
+                )
         else:
             await msg.answer("Список сообщений пуст.")
+
 
 @dp.callback_query(F.data.startswith("delete_message_"))
 async def delete_message(callback: types.CallbackQuery):
@@ -260,7 +276,7 @@ async def admin_panel(msg: types.Message):
 
 
 # === SCHEDULER === #
-scheduler.add_job(send_scheduled_messages, trigger="interval", minutes=1)
+scheduler.add_job(send_scheduled_messages, trigger="interval", seconds=10)
 
 
 # === MAIN === #
