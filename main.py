@@ -15,7 +15,8 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 import logging
 from datetime import datetime, timedelta
 import os
-
+from dotenv import load_dotenv
+load_dotenv()
 # Logging
 logging.basicConfig(level=logging.INFO)
 
