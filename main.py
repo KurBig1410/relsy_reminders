@@ -14,6 +14,7 @@ from sqlalchemy import String, Float, BigInteger, select, delete, DateTime, Fore
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 import logging
 from datetime import datetime, timedelta
+import os
 
 # Logging
 logging.basicConfig(level=logging.INFO)
@@ -62,7 +63,7 @@ class AdminStates(StatesGroup):
 
 
 # === BOT SETUP === #
-bot = Bot(token="7149425421:AAGESxE2Y-7gX5u0vUozwrdvi7Tcwn4FDZ0")
+bot = Bot(token=os.getenv("BOT_API_TOKEN"))
 dp = Dispatcher()
 scheduler = AsyncIOScheduler()
 

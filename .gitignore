@@ -5,6 +5,7 @@ venv/
 .env
 
 venv
+bot.db
 
 static
 /static
